@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Scanner;
 
-public class CPostalCharges {
+public class C_PostalCharges {
 	
 	/**
 	 * @author Rubén Agudo, David Ramirez, Javier Fernandez
