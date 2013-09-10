@@ -2,6 +2,7 @@ package org.swerc2008;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Scanner;
@@ -13,8 +14,8 @@ public class C_PostalCharges {
 	 */
 	
 	
-	private static LinkedList<LinkedList<float[]>> grafo;
-	private static LinkedList<float[]> listaNombres;
+	private static LinkedList<LinkedList<BigDecimal[]>> grafo;
+	private static LinkedList<BigDecimal[]> listaNombres;
 	private static Scanner sc;
 	private static int casas;
 	
@@ -28,8 +29,8 @@ public class C_PostalCharges {
 			
 			while (sc.hasNext()) {
 				
-				grafo = new LinkedList<LinkedList<float[]>>();
-				listaNombres = new LinkedList<float[]>();
+				grafo = new LinkedList<LinkedList<BigDecimal[]>>();
+				listaNombres = new LinkedList<BigDecimal[]>();
 				
 				rellenarListaNombres();
 				crearEnlaces();
@@ -50,21 +51,22 @@ public class C_PostalCharges {
 		int ind = 0;
 		int caminosRecorridos = 0 ;
 		float suma = 0;
-		float[] coordenadaBase, coordenadaActual;
+		BigDecimal[] coordenadaBase, coordenadaActual;
 		
-		Iterator<LinkedList<float[]>> itr2 = grafo.iterator();
+		Iterator<LinkedList<BigDecimal[]>> itr2 = grafo.iterator();
 		
 		
 		while( itr2.hasNext() ) {
 			
 			coordenadaBase = listaNombres.get(ind);
-			Iterator<float[]> itr =  itr2.next().iterator();
+			Iterator<BigDecimal[]> itr =  itr2.next().iterator();
 			
 			while(itr.hasNext()) {
 				
 				coordenadaActual = itr.next();
 				
-				suma+= Math.abs(coordenadaActual[0]-coordenadaBase[0]) + Math.abs(coordenadaActual[1]-coordenadaBase[1]);
+				suma+= Math.abs(coordenadaActual[0].doubleValue() - coordenadaBase[0].doubleValue()) + 
+						Math.abs(coordenadaActual[1].doubleValue() - coordenadaBase[1].doubleValue());
 				caminosRecorridos++;
 				
 			}
@@ -81,25 +83,27 @@ public class C_PostalCharges {
 	private static void crearEnlaces() {
 		
 		int ind = 0;
-		float[] gremioActual, gremio, paraAnadir;
+		BigDecimal[] gremioActual, gremio, paraAnadir;
 		
 		
-		Iterator<float[]> itr1 = listaNombres.iterator();
+		Iterator<BigDecimal[]> itr1 = listaNombres.iterator();
 		
 		
 		while(itr1.hasNext()) {
 			
 			gremioActual = itr1.next();
 			
-			Iterator<float[]> itr2 = listaNombres.iterator();
+			Iterator<BigDecimal[]> itr2 = listaNombres.iterator();
 			
 			while(itr2.hasNext()) {
 				
 				gremio = itr2.next();
-				paraAnadir = new float[] {gremio[0], gremio[1]};
+				paraAnadir = new BigDecimal[2];
+				paraAnadir[0] = gremio[0];
+				paraAnadir[1] = gremio[1];
 				
-				if(gremio[0] > gremioActual[0] && 
-						gremio[1] > gremioActual[1]) {
+				if(gremio[0].intValue() > gremioActual[0].intValue() && 
+						gremio[1].intValue() > gremioActual[1].intValue()) {
 					
 					grafo.get(ind).add(paraAnadir);
 					
@@ -122,19 +126,20 @@ public class C_PostalCharges {
 		float x, y;
 		
 		
-		grafo = new LinkedList<LinkedList<float[]>>();
+		grafo = new LinkedList<LinkedList<BigDecimal[]>>();
 		
 		while( ind < casas ) {
 			
 			x = Float.parseFloat(sc.next());
 			y = Float.parseFloat(sc.next());
 			
-			float[] coordenada = new float[] {x,y};
+			BigDecimal[] coordenada = new BigDecimal[] {
+					new BigDecimal(x), new BigDecimal(y)};
 			
 			if(!listaNombres.contains(coordenada)) {
 				
 				listaNombres.add(coordenada);
-				grafo.add(new LinkedList<float[]>());
+				grafo.add(new LinkedList<BigDecimal[]>());
 				
 			}
 			
