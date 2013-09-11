@@ -13,25 +13,27 @@ public class C_PostalCharges {
 	 * @author Rubén Agudo, David Ramirez, Javier Fernandez
 	 */
 	
-	
+	//creating a graph using adjadency lists of BigDecimals
 	private static LinkedList<LinkedList<BigDecimal[]>> grafo;
 	private static LinkedList<BigDecimal[]> listaNombres;
+	
 	private static Scanner sc;
-	private static int casas;
 	
 	
 	public static void main(String[] args) {
 		
 		
-		
 		try {
+			//reading from the arguments
 			sc = new Scanner(new File(args[0]));
 			
 			while (sc.hasNext()) {
 				
+				//instantiating the graph for every execution
 				grafo = new LinkedList<LinkedList<BigDecimal[]>>();
 				listaNombres = new LinkedList<BigDecimal[]>();
 				
+				//do the processing
 				rellenarListaNombres();
 				crearEnlaces();
 				calcularEImprimir();
@@ -39,12 +41,15 @@ public class C_PostalCharges {
 			}
 			
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 	}
 	
-	
+	/**
+	 * This method calculates the mean distance between guilds.
+	 * 
+	 */
 	private static void calcularEImprimir() {
 		
 		
@@ -55,9 +60,10 @@ public class C_PostalCharges {
 		
 		Iterator<LinkedList<BigDecimal[]>> itr2 = grafo.iterator();
 		
-		
+		//for every node of the graph
 		while( itr2.hasNext() ) {
 			
+			//we get the coordinates of the guild
 			coordenadaBase = listaNombres.get(ind);
 			Iterator<BigDecimal[]> itr =  itr2.next().iterator();
 			
@@ -65,8 +71,13 @@ public class C_PostalCharges {
 				
 				coordenadaActual = itr.next();
 				
-				suma+= Math.abs(coordenadaActual[0].doubleValue() - coordenadaBase[0].doubleValue()) + 
-						Math.abs(coordenadaActual[1].doubleValue() - coordenadaBase[1].doubleValue());
+				/*
+				 * Manhattan distance for two point (x1,y1) and (x2,y2) is
+				 * |x1-x2| + |y1-y2|
+				 */
+				suma+= Math.abs(coordenadaActual[0].subtract(coordenadaBase[0]).doubleValue()) +
+						Math.abs(coordenadaActual[1].subtract(coordenadaBase[1]).doubleValue()); 
+						
 				caminosRecorridos++;
 				
 			}
@@ -79,7 +90,9 @@ public class C_PostalCharges {
 		
 	}
 
-
+	/**
+	 * This method creates the links between nodes in the graph
+	 */
 	private static void crearEnlaces() {
 		
 		int ind = 0;
@@ -118,20 +131,24 @@ public class C_PostalCharges {
 	}
 
 
+	/**
+	 * Method that creates the list with the guilds
+	 * @throws FileNotFoundException
+	 */
 	private static void rellenarListaNombres() throws FileNotFoundException {
 		
 		
-		casas = sc.nextInt();
+		int casas = sc.nextInt();
 		int ind = 0;
-		float x, y;
+		String x, y;
 		
 		
 		grafo = new LinkedList<LinkedList<BigDecimal[]>>();
 		
 		while( ind < casas ) {
 			
-			x = Float.parseFloat(sc.next());
-			y = Float.parseFloat(sc.next());
+			x = sc.next();
+			y = sc.next();
 			
 			BigDecimal[] coordenada = new BigDecimal[] {
 					new BigDecimal(x), new BigDecimal(y)};
@@ -148,6 +165,7 @@ public class C_PostalCharges {
 		}
 		
 	}
+	
 	
 
 }
