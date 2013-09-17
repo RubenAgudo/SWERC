@@ -85,7 +85,7 @@ public class A_BringYourOwnHorse {
 		
 		evaluations = Integer.parseInt(sc.next());
 		
-		System.out.println("Case " + pCase);
+		System.out.println("Case " + (pCase + 1));
 		
 		for(int y = 0; y < evaluations; y++) {
 			
@@ -109,38 +109,98 @@ public class A_BringYourOwnHorse {
 	 */
 	private static int breadthFirstSearch(int from, int to) {
 		
-		int maxDistance = 0,
-			distance;
+		int maxDistance = 0;
 		Integer[] object;
 		LinkedList<Integer[]> cola = new LinkedList<Integer[]>();
-		LinkedList<Integer[]> precedente = new LinkedList<Integer[]>();
+		
+		LinkedList<Integer> visited = new LinkedList<Integer>();
+		
+		int[] precedents = new int[listaNombres.size()];
+		int[] distances = new int[listaNombres.size()];
+		
+		
 		Iterator<Integer[]> itr;
+		int precedent = -1,
+			distance = -1,
+			indexOfObject;
 		boolean found = false;
 		
-		cola.add(new Integer[]{from, 0});
-		precedente.add(new Integer[] {0, -1});
+		
+		
+		cola.add(new Integer[] {from, 0});
 		
 		while(!cola.isEmpty() && !found) {
 			
 			object = cola.removeFirst();
+			
+			indexOfObject = listaNombres.indexOf(object[0]);
+			
+			//setting up the visited node
+			visited.add(listaNombres.indexOf(object[0]));
+			
+			//setting up the precedent
+			precedent = listaNombres.indexOf(object[0]);
 			distance = object[1];
 			
-			if(distance > maxDistance) {
-				
-				maxDistance = distance;
+			//inserting in the precedents list the last removed object
+			precedents[indexOfObject] = precedent;
+			distances[indexOfObject] = distance;
 			
-			}
+			
+
 			
 			if(object[0] == to) {
 				found = true;
 			}
 			
-			itr = grafo.get(listaNombres.indexOf(object[0])).iterator();
+			itr = grafo.get(indexOfObject).iterator();
 			
 			while(itr.hasNext()) {
 				
 				object = itr.next();
-				cola.add(object);
+				
+				if(!visited.contains(listaNombres.indexOf(object[0]))) {
+					
+					cola.add(object);
+					
+					
+				}
+				
+			}
+			
+		}
+		
+		if(found) {
+			maxDistance = doBackTrack(precedents, distances, to);
+		}
+		
+		return maxDistance;
+	}
+
+	
+	/**
+	 * Method that backtracks the path from given node
+	 * @param precedents
+	 * @param from
+	 * @return maxDistance
+	 */
+	private static int doBackTrack(int[] precedents, int[] distances, int from) {
+		
+		int	maxDistance = 0,
+			precedent = from,
+			distance = -1,
+			indexOfObject;
+		
+		while(distance != 0) {
+			
+			indexOfObject = listaNombres.indexOf(precedent);
+			
+			distance = distances[indexOfObject];
+			precedent = precedents[indexOfObject];
+			
+			if(distance > maxDistance) {
+				
+				maxDistance = distance;
 				
 			}
 			
