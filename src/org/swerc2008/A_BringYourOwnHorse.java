@@ -68,7 +68,7 @@ public class A_BringYourOwnHorse {
 			
 			//sorting the data to apply the kruskal algorithm
 			mergeSort();
-			kruskal();
+			kruskal(places);
 			evaluateAndPrint(indCases);
 			
 			indCases++;
@@ -125,9 +125,7 @@ public class A_BringYourOwnHorse {
 			indexOfObject;
 		boolean found = false;
 		
-		
-		
-		cola.add(new Integer[] {from, 0});
+		cola.add(new Integer[] {from, grafo.get(listaNombres.indexOf(from)).getFirst()[1]});
 		
 		while(!cola.isEmpty() && !found) {
 			
@@ -138,16 +136,15 @@ public class A_BringYourOwnHorse {
 			//setting up the visited node
 			visited.add(listaNombres.indexOf(object[0]));
 			
-			//setting up the precedent
-			precedent = listaNombres.indexOf(object[0]);
-			distance = object[1];
 			
 			//inserting in the precedents list the last removed object
 			precedents[indexOfObject] = precedent;
 			distances[indexOfObject] = distance;
 			
 			
-
+			//setting up the precedent
+			precedent = listaNombres.indexOf(object[0]);
+			distance = object[1];
 			
 			if(object[0] == to) {
 				found = true;
@@ -212,47 +209,128 @@ public class A_BringYourOwnHorse {
 	/**
 	 * Method that applies the kruskal algorithm to obtain a minimum spanning tree
 	 * it is assumed that the data is ordered
+	 * @param roads 
+	 * @param places 
 	 */
-	private static void kruskal() {
+	private static void kruskal(int places) {
 		
 		int placeFrom,
 			placeTo,
-			distance;			
+			distance,
+			positionFrom = 0,
+			positionTo = 0,
+			x = 0;
 		
-		for(int x = 0; x < data.length; x++) {
+		LinkedList<LinkedList<Integer>> disjointSets = new LinkedList<LinkedList<Integer>>();
+		
+		boolean exit = false,
+				foundFrom = false,
+				foundTo = false;
+		
+		while(x < data.length && !exit) {
 			
 			placeFrom = data[x][0];
 			placeTo = data[x][1];
 			distance= data[x][2];
 			
 			
-			if(!listaNombres.contains(placeFrom)) {
+			Iterator<LinkedList<Integer>> itr = disjointSets.iterator();
+			
+			foundFrom = false;
+			foundTo = false;
+			positionFrom = 0;
+			positionTo = 0;
+			
+			while(itr.hasNext() && (!foundFrom || !foundTo)) {
 				
+				LinkedList<Integer> list = itr.next();
+				
+				if(!foundFrom) {
+					
+					if(list.contains(placeFrom)) {
+						
+						foundFrom = true;
+						
+					} else {
+						
+						positionFrom++;
+						
+					}
+					
+				}
+				
+				if(!foundTo) {
+					
+					if(list.contains(placeTo) && !foundTo) {
+						
+						foundTo = true;
+						
+					} else {
+						
+						positionTo++;
+						
+					}
+					
+				}
+				
+			}
+			
+			if(!foundFrom) {
+				
+				LinkedList<Integer> newSet = new LinkedList<Integer>();
+				newSet.add(placeFrom);
+				disjointSets.add(newSet);
 				listaNombres.add(placeFrom);
 				grafo.add(new LinkedList<Integer[]>());
 				
 			}
 			
-			/*
-			 * if placeTo is not in the list means that we are
-			 * not creating a cycle
-			 */
-			if(!listaNombres.contains(placeTo)) {
+			if(!foundTo) {
 				
-				listaNombres.add(placeTo);				
-				
+				disjointSets.get(positionFrom).add(placeTo);
+				listaNombres.add(placeTo);
 				grafo.add(new LinkedList<Integer[]>());
-				
-				//we add the link to the graph, as it's undirected we make the path in double direction
-				grafo.get(listaNombres.indexOf(placeFrom)).add(new Integer[] 
-						{placeTo, distance});
-				
-				grafo.get(listaNombres.indexOf(placeTo)).add(new Integer[] 
-						{placeFrom, distance});
 				
 			}
 			
+			
+			
+			if((foundFrom && foundTo) && (positionFrom != positionTo)) {
+				
+				Iterator<Integer> itr2 = disjointSets.get(positionTo).iterator();
+				
+				while(itr2.hasNext()) {
+					
+					Integer node = itr2.next();
+					disjointSets.get(positionFrom).add(node);
+					
+				}
+				
+				disjointSets.remove(positionTo);
+				
+			}
+			
+			if(((foundFrom && foundTo) && (positionFrom != positionTo)) || !foundTo) {
+				createLink(placeFrom, placeTo, distance);
+			}
+			
+			if(disjointSets.getFirst().size() == places) {
+				exit = true;
+			}
+						
+			x++;
+			
 		}
+		
+	}
+
+	private static void createLink(int placeFrom, int placeTo, int distance) {
+		//we add the link to the graph, as it's undirected we make the path in double direction
+		grafo.get(listaNombres.indexOf(placeFrom)).add(new Integer[] 
+				{placeTo, distance});
+		
+		grafo.get(listaNombres.indexOf(placeTo)).add(new Integer[] 
+				{placeFrom, distance});
 		
 	}
 
