@@ -120,25 +120,25 @@ public class A_BringYourOwnHorse {
 		
 		
 		Iterator<Integer[]> itr;
-		int precedent = -1,
+		int precedent = from,
 			distance = -1,
 			indexOfObject;
 		boolean found = false;
 		
-		cola.add(new Integer[] {from, grafo.get(listaNombres.indexOf(from)).getFirst()[1]});
+		cola.add(grafo.get(listaNombres.indexOf(from)).getFirst());
 		
 		while(!cola.isEmpty() && !found) {
 			
 			object = cola.removeFirst();
 			
-			indexOfObject = listaNombres.indexOf(object[0]);
+			indexOfObject = listaNombres.indexOf(precedent);
 			
 			//setting up the visited node
 			visited.add(listaNombres.indexOf(object[0]));
 			
 			
 			//inserting in the precedents list the last removed object
-			precedents[indexOfObject] = precedent;
+			precedents[indexOfObject] = indexOfObject;
 			distances[indexOfObject] = distance;
 			
 			
@@ -234,46 +234,7 @@ public class A_BringYourOwnHorse {
 			distance= data[x][2];
 			
 			
-			Iterator<LinkedList<Integer>> itr = disjointSets.iterator();
-			
-			foundFrom = false;
-			foundTo = false;
-			positionFrom = 0;
-			positionTo = 0;
-			
-			while(itr.hasNext() && (!foundFrom || !foundTo)) {
-				
-				LinkedList<Integer> list = itr.next();
-				
-				if(!foundFrom) {
-					
-					if(list.contains(placeFrom)) {
-						
-						foundFrom = true;
-						
-					} else {
-						
-						positionFrom++;
-						
-					}
-					
-				}
-				
-				if(!foundTo) {
-					
-					if(list.contains(placeTo) && !foundTo) {
-						
-						foundTo = true;
-						
-					} else {
-						
-						positionTo++;
-						
-					}
-					
-				}
-				
-			}
+			find(disjointSets, placeFrom, placeTo, foundFrom, foundTo, positionFrom, positionTo);
 			
 			if(!foundFrom) {
 				
@@ -297,16 +258,7 @@ public class A_BringYourOwnHorse {
 			
 			if((foundFrom && foundTo) && (positionFrom != positionTo)) {
 				
-				Iterator<Integer> itr2 = disjointSets.get(positionTo).iterator();
-				
-				while(itr2.hasNext()) {
-					
-					Integer node = itr2.next();
-					disjointSets.get(positionFrom).add(node);
-					
-				}
-				
-				disjointSets.remove(positionTo);
+				union(disjointSets, positionFrom, positionTo);
 				
 			}
 			
@@ -324,6 +276,67 @@ public class A_BringYourOwnHorse {
 		
 	}
 
+	private static void union(LinkedList<LinkedList<Integer>> disjointSets, int positionFrom, int positionTo) {
+		
+		Iterator<Integer> itr2 = disjointSets.get(positionTo).iterator();
+		
+		while(itr2.hasNext()) {
+			
+			Integer node = itr2.next();
+			disjointSets.get(positionFrom).add(node);
+			
+		}
+		
+		disjointSets.remove(positionTo);
+		
+	}
+	
+	private static void find(LinkedList<LinkedList<Integer>> disjointSets, int placeFrom, int placeTo, 
+			boolean foundFrom, boolean foundTo, int positionFrom, int positionTo) {
+		
+		Iterator<LinkedList<Integer>> itr = disjointSets.iterator();
+		
+		foundFrom = false;
+		foundTo = false;
+		positionFrom = 0;
+		positionTo = 0;
+		
+		while(itr.hasNext() && (!foundFrom || !foundTo)) {
+			
+			LinkedList<Integer> list = itr.next();
+			
+			if(!foundFrom) {
+				
+				if(list.contains(placeFrom)) {
+					
+					foundFrom = true;
+					
+				} else {
+					
+					positionFrom++;
+					
+				}
+				
+			}
+			
+			if(!foundTo) {
+				
+				if(list.contains(placeTo) && !foundTo) {
+					
+					foundTo = true;
+					
+				} else {
+					
+					positionTo++;
+					
+				}
+				
+			}
+			
+		}
+		
+	}
+	
 	private static void createLink(int placeFrom, int placeTo, int distance) {
 		//we add the link to the graph, as it's undirected we make the path in double direction
 		grafo.get(listaNombres.indexOf(placeFrom)).add(new Integer[] 
