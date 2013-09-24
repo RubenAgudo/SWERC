@@ -3,7 +3,6 @@ package org.swerc2008;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.Scanner;
 
 public class G_TollRoad {
@@ -17,9 +16,11 @@ public class G_TollRoad {
 	 * algorithm plus the cost of creating the graph the first time. 
 	 */
 	
-	private static ArrayList<LinkedList<Integer[]>> graph;
+	private static ArrayList<Integer[]> edges;
 	private static ArrayList<Integer> listaNombres;
 	private static Scanner sc;
+	
+	private static final int INFINITY = 1001;
 	
 	public static void main(String[] args) {
 		
@@ -41,14 +42,14 @@ public class G_TollRoad {
 		
 		while(roads != 0) {
 			
-			createGraph(roads);
-			
+			createEdges(roads);
+			roads = Integer.parseInt(sc.next());
 		}
 		
 	}
 
 
-	private static void createGraph(int pRoads) {
+	private static void createEdges(int pRoads) {
 		
 		int x = 0,
 			townFrom,
@@ -59,7 +60,7 @@ public class G_TollRoad {
 		int[] startingTowns = new int[2],
 				expectedProfits = new int[2];
 		
-		graph = new ArrayList<LinkedList<Integer[]>>(pRoads);
+		edges = new ArrayList<Integer[]>(pRoads);
 		listaNombres = new ArrayList<Integer>(pRoads);
 		
 		for(x = 0; x < pRoads; x++) {
@@ -82,13 +83,87 @@ public class G_TollRoad {
 		}
 		
 		for(x = 0; x < startingTowns.length; x++) {
-			expectedProfits[x] = bellmanFord(startingTowns[x]);
+			expectedProfits[x] = bellmanFord(startingTowns[x], pRoads);
 		}
 		
 		print(expectedProfits);
 		
 		
 		
+	}
+
+
+	private static void createLink(int townFrom, int townTo, 
+			int profit) {
+		
+		addNodeToGraph(townFrom);
+		addNodeToGraph(townTo);
+		
+		edges.add(new Integer[] {townFrom, townTo, profit*(-1)});
+		
+	}
+
+
+	private static void addNodeToGraph(int pTown) {
+		
+		if(!listaNombres.contains(pTown)) {
+			
+			listaNombres.add(pTown);
+			
+		}
+		
+	}
+
+	/**
+	 * The bellman-ford algorithm, only indicating the number of roads and the starting node.
+	 * @param pStartingTown
+	 * @param pRoads
+	 * @return
+	 */
+	private static int bellmanFord(int pStartingTown, int pRoads) {
+		int[] predecessors = new int[listaNombres.size()];
+		int[] distances = new int[listaNombres.size()];
+		int i, j, maxProfit = 0;
+		
+		for(i = 0; i < listaNombres.size(); i++) {
+			if(listaNombres.get(i) == pStartingTown) {
+				distances[i] = 0;
+			} else {
+				distances[i] = INFINITY;
+			}
+			
+			predecessors[i] = -1;
+			
+		}
+		
+		for(i = 0; i < listaNombres.size()-1; i++) {
+			
+			for(j = 0; j < pRoads; j++) {
+				
+				int x = distances[listaNombres.indexOf(edges.get(j)[0])];
+				int y = edges.get(j)[2];
+				int z = distances[listaNombres.indexOf(edges.get(j)[1])];
+				
+				if(x + y < z) {
+					
+					distances[listaNombres.indexOf(edges.get(j)[1])] = distances[listaNombres.indexOf(edges.get(j)[0])] + edges.get(j)[2];
+		            predecessors[listaNombres.indexOf(edges.get(j)[1])] = edges.get(j)[0];
+					
+				}
+				
+			}
+			
+		}
+		
+		for(i = 0; i < listaNombres.size(); i++) {
+			
+			if(distances[i]*(-1) > maxProfit) {
+				maxProfit = distances[i]*(-1);
+			}
+
+		}
+		
+		return maxProfit;
 	}
 
 
@@ -101,38 +176,6 @@ public class G_TollRoad {
 		} else {
 			
 			System.out.println(expectedProfits[1]);
-			
-		}
-		
-	}
-
-
-	private static int bellmanFord(int i) {
-		
-		return 0;
-	}
-
-
-	private static void createLink(int townFrom, int townTo, int profit) {
-		
-		addNodeToGraph(townFrom);
-		addNodeToGraph(townTo);
-		
-		graph.get(listaNombres.indexOf(townFrom)).add(
-				new Integer[] {townTo, profit});
-		
-		graph.get(listaNombres.indexOf(townTo)).add(
-				new Integer[] {townFrom, profit});
-		
-	}
-
-
-	private static void addNodeToGraph(int pTown) {
-		
-		if(!listaNombres.contains(pTown)) {
-			
-			listaNombres.add(pTown);
-			graph.add(new LinkedList<Integer[]>());
 			
 		}
 		
