@@ -2,10 +2,10 @@
 *.in
 *.out
 *.classpath
-*.project
 
 # Package Files #
 *.jar
 *.war
 *.ear
 
+*.txt
