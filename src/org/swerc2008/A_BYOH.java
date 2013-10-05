@@ -43,8 +43,8 @@ public class A_BYOH {
 		}
 		
 		@Override public boolean equals(Object o) {
-            return (o instanceof Road) && (fromTown == ((Road) o).fromTown && 
-					toTown == ((Road) o).toTown &&
+            return (o instanceof Road) && ((fromTown.equals(((Road) o).fromTown)) && 
+            		(toTown.equals(((Road) o).toTown)) &&
 					distance == ((Road) o).distance);
         }
 		
