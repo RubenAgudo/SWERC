@@ -1,4 +1,4 @@
-package swerc2009;
+package org.swerc2009;
 
 import java.io.File;
 import java.io.FileNotFoundException;
