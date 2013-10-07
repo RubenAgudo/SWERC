@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
@@ -20,13 +21,39 @@ public class A_BYOH {
 			name = pName;
 		}
 		
-		@Override public boolean equals(Object o) {
-			return (o instanceof Vertex) && (name == ((Vertex) o).name);
-		}
+//		@Override public boolean equals(Object o) {
+//			return (o instanceof Vertex) && (name == ((Vertex) o).name);
+//		}
+		
+		
 		
 		@Override public String toString() {
 			return String.format("" + name);
 		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + name;
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			Vertex other = (Vertex) obj;
+			if (name != other.name)
+				return false;
+			return true;
+		}
+		
+		
 	}
 	
 	private static class Road {
@@ -148,8 +175,8 @@ public class A_BYOH {
 		Road aRoad;
 		
 		LinkedList<Vertex> stack = new LinkedList<Vertex>();
-		LinkedList<Vertex> visited = new LinkedList<Vertex>();
-		Map<Vertex, Integer> maxDistanceToVertex = new HashMap<Vertex, Integer>();
+		HashSet<Vertex> visited = new HashSet<Vertex>();
+		Map<Integer, Integer> maxDistanceToVertex = new HashMap<Integer, Integer>();
 		
 		Iterator<Road> itr;
 		
@@ -164,7 +191,7 @@ public class A_BYOH {
 			
 			if(from.equals(to)) {
 				found = true;
-				maxDistance = maxDistanceToVertex.get(from);
+				maxDistance = maxDistanceToVertex.get(to.name);
 			} else {
 				itr = graph.get(from).iterator();
 				
@@ -175,11 +202,12 @@ public class A_BYOH {
 					if(!visited.contains(aRoad.toTown)) {
 						
 						stack.add(aRoad.toTown);
-						
-						if(maxDistanceToVertex.get(from) < aRoad.distance ) {
-							maxDistanceToVertex.put(aRoad.toTown, aRoad.distance);
+						if(maxDistanceToVertex.get(from.name) == null) {
+							maxDistanceToVertex.put(aRoad.toTown.name, aRoad.distance);
+						} else if(maxDistanceToVertex.get(from.name) < aRoad.distance ) {
+							maxDistanceToVertex.put(aRoad.toTown.name, aRoad.distance);
 						} else {
-							maxDistanceToVertex.put(aRoad.toTown, maxDistanceToVertex.get(from));
+							maxDistanceToVertex.put(aRoad.toTown.name, maxDistanceToVertex.get(from.name));
 						}
 					}
 					
