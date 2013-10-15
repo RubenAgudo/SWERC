@@ -3,6 +3,7 @@ package org.swerc2009;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Scanner;
 
@@ -12,17 +13,39 @@ public class F_HauntedGraveyard {
 		
 		private int posX;
 		private int posY;
+		private int serial;
+		
+		public Vertex(int pPosX, int pPosY, int pSerial) {
+			
+			posX = pPosX;
+			posY = pPosY;
+			serial = pSerial;
+		}
 		
 		public Vertex(int pPosX, int pPosY) {
 			
 			posX = pPosX;
 			posY = pPosY;
-			
 		}
 		
 		@Override public boolean equals(Object o) {
 			return (o instanceof Vertex) && (posX == ((Vertex) o).posX && posY == ((Vertex) o).posY);
 		}
+
+		@Override
+		public int hashCode() {
+			int hash = 7;
+		    hash = 71 * hash + this.posX;
+		    hash = 71 * hash + this.posY;
+		    return hash;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("("+ posX +", " + posY +")");
+		}
+		
+		
 	}
 	
 	public static class Road {
@@ -46,12 +69,16 @@ public class F_HauntedGraveyard {
 					time == ((Road)o).time);
 		}
 		
+		@Override public String toString() {
+			return String.format("(" + from + ", " + to +", " + time + ")\n");
+		}
+		
 	}
 	
 	private static LinkedList<Vertex> collectionVertices;
 	private static LinkedList<Road> graph;
 	private static Scanner sc;
-	private static final int INFINITY = -10001;
+	private static final int INFINITY = 10001;
 	
 	public static void main(String[] args) {
 		
@@ -119,7 +146,6 @@ public class F_HauntedGraveyard {
 	private static int bellmanFord(Vertex pOrigin, int pRoads, int width, int height) {
 		HashMap<Vertex, Vertex> predecessors = new HashMap<Vertex, Vertex>();
 		HashMap<Vertex, Integer> distances = new HashMap<Vertex, Integer>();
-		HashMap<Vertex, Boolean> visited = new HashMap<Vertex, Boolean>();
 		
 		int i, j, result = 0;
 		
@@ -131,28 +157,28 @@ public class F_HauntedGraveyard {
 			}
 			
 			predecessors.put(collectionVertices.get(i), null);
-			visited.put(collectionVertices.get(i), false);
 		}
 		
-		for(i = 0; i < collectionVertices.size()-1; i++) {
+		for(i = 0; i < collectionVertices.size(); i++) {
 			
 			for(j = 0; j < pRoads; j++) {
 				
-				if(!visited.get(graph.get(j).to)) {
-					
-					int u = distances.get(graph.get(j).from); //distance of NodeFrom
-					int w = graph.get(j).time;
-					int v = distances.get(graph.get(j).to); //distance of NodeTo
-					
-					if(u + w < v) {
-						//distances[NodeTo] = distances[NodeFrom] + profit
-						distances.put(graph.get(j).to, u + w);
-			            predecessors.put(graph.get(j).to, graph.get(j).from);
-						
+				Road aRoad = graph.get(j);
+				
+				int u = distances.get(aRoad.from); //distance of NodeFrom
+				int w = aRoad.time;
+				int v = distances.get(aRoad.to); //distance of NodeTo
+				
+				if(u + w < v) {
+					//distances[NodeTo] = distances[NodeFrom] + profit
+					distances.put(aRoad.to, u + w);
+					if(predecessors.get(aRoad.to) == null) {
+						predecessors.put(aRoad.to, aRoad.from);
 					}
+		            
 					
-					visited.put(graph.get(j).to, true);
 				}
+				
 			}
 			
 		}
@@ -160,26 +186,49 @@ public class F_HauntedGraveyard {
 		//check for negative cycles
 		for(i = 0; i < graph.size(); i++) {
 			
-			int u = distances.get(graph.get(i).from); //distance of NodeFrom
-			int w = graph.get(i).time;
-			int v = distances.get(graph.get(i).to); //distance of NodeTo
+			Road aRoad = graph.get(i);
+			int u = distances.get(aRoad.from); //distance of NodeFrom
+			int w = aRoad.time;
+			int v = distances.get(aRoad.to); //distance of NodeTo
 			
 			if(u + w < v) {
-				
-				result = -1;
+				if(reachableFromSource(aRoad.from, predecessors)) {
+					result = -1;
+				}
 				
 			}
 		}
 		
 		if(result != -1) {
 			
-			result = distances.get(new Vertex(width, height));
+			result = distances.get(new Vertex(width-1, height-1));
 		
 		}
 		
 		return result;
 	}
 	
+	private static boolean reachableFromSource(Vertex from,
+			HashMap<Vertex, Vertex> predecessors) {
+		
+		Vertex source = new Vertex(0, 0);
+		Vertex aVertex = new Vertex(from.posX, from.posY);
+		Vertex me;
+		
+		boolean exit = false;
+		
+		while(predecessors.get(aVertex) != null && !exit) {
+			me = new Vertex(aVertex.posX, aVertex.posY);
+			aVertex = predecessors.get(aVertex);
+			
+			if(aVertex.equals(source) || me.equals(aVertex)) {
+				exit = true;
+			}
+		}
+		
+		return aVertex.equals(source);
+	}
+
 	private static void createHauntedHoles(int hauntedHoles) {
 		
 		int posXFrom, posYFrom, posXTo, posYTo, time;
@@ -211,36 +260,44 @@ public class F_HauntedGraveyard {
 		
 		Vertex me, otherVertex = null;
 		Road aRoad;
+		Vertex destination = new Vertex(w-1, h-1);
+		Iterator<Vertex> itr = collectionVertices.iterator();
 		
-		for(int x = 0; x < collectionVertices.size(); x++) {
+		while(itr.hasNext()) {
 			
-			me = collectionVertices.get(x);
+			me = itr.next();
 			
-			for(int y = 0; y < 4; y++) {
+			//if the node is the exit, we won't go back
+			if(!me.equals(destination)) {
 				
-				switch(y) {
-				case 0:
-					otherVertex = new Vertex(me.posX + 1, me.posY);
-					break;
-				case 1:
-					otherVertex = new Vertex(me.posX, me.posY + 1);
-					break;
-				case 2:
-					otherVertex = new Vertex(me.posX - 1, me.posY);
-					break;
-				case 3:
-					otherVertex = new Vertex(me.posX, me.posY - 1);
-					break;
-				}
-				
-				if(otherVertex.posX < w  && otherVertex.posY < h &&
-						otherVertex.posX >= 0 && otherVertex.posY >= 0) {
+				for(int y = 0; y < 4; y++) {
 					
-					aRoad = new Road(me, otherVertex, 1);
-					graph.add(aRoad);
+					switch(y) {
+					case 0:
+						otherVertex = new Vertex(me.posX + 1, me.posY);
+						break;
+					case 1:
+						otherVertex = new Vertex(me.posX, me.posY + 1);
+						break;
+					case 2:
+						otherVertex = new Vertex(me.posX - 1, me.posY);
+						break;
+					case 3:
+						otherVertex = new Vertex(me.posX, me.posY - 1);
+						break;
+					}
+					
+					if(otherVertex.posX < w  && otherVertex.posY < h &&
+							otherVertex.posX >= 0 && otherVertex.posY >= 0 &&
+							collectionVertices.contains(otherVertex)) {
+						
+						aRoad = new Road(me, otherVertex, 1);
+						graph.add(aRoad);
+					}
 				}
 						
 			}
+			
 			
 		}
 		
@@ -264,7 +321,7 @@ public class F_HauntedGraveyard {
 	private static void createTheVertices(int w, int h) {
 		
 		for(int x = 0; x < w; x++) {
-			for(int y = 0; x < w; x++) {
+			for(int y = 0; y < h; y++) {
 				collectionVertices.add(new Vertex(x, y));
 			}
 		}
