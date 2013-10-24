@@ -6,8 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Scanner;
 
@@ -91,6 +89,9 @@ public class LawnMower {
 					coveredInY = proccessField(passesInY, widthLM, 100d);
 				
 				} else {
+					/*
+					 * So we skip the next line
+					 */
 					sc.nextLine();
 					sc.nextLine();
 				}
@@ -139,8 +140,10 @@ public class LawnMower {
 			
 			aPair = new Pair(x, y);
 			
+			//inserting in the priority queue keeping
+			//the Pair.X parameter as the ordering parameter
 			data.add(aPair);
-			//insert(aPair, data);
+			
 			
 			numPasses++;
 			
@@ -157,21 +160,36 @@ public class LawnMower {
 		boolean exit = false;
 		Pair aPair, latestPair = null;
 		
+		//we take the first chunk
 		latestPair = data.poll();
 		
+		//initializing the min max variables
 		if(latestPair.getX() < min && latestPair.getY() >= max) {
 			min = latestPair.getX();
 			max = latestPair.getY();
 		}
 		
+		/*
+		 * if min is greater than zero, means that we can't 
+		 * cover the field because the first element of the
+		 * priority queue is the closest to zero
+		 */
 		if(min > 0) {
 			exit = true;
 		}
 		
+		/*
+		 * while chunks are available
+		 */
 		while(!data.isEmpty() & !exit) {
 			
 			aPair = data.poll();
 			
+			/*
+			 * as it's ordered, if the next chunk
+			 * cannot "extend" the covered part we abort
+			 * we update max if needed
+			 */
 			if(aPair.getX() <= latestPair.getY()) {
 				if(aPair.getY() > max) {
 					max = aPair.getY();
