@@ -6,8 +6,9 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Iterator;
+import java.util.Comparator;
 import java.util.LinkedList;
+import java.util.PriorityQueue;
 import java.util.Scanner;
 
 /**
@@ -15,6 +16,7 @@ import java.util.Scanner;
  */
 
 public class LawnMower {
+
 	
 	/*
 	 * Attributes
@@ -25,7 +27,7 @@ public class LawnMower {
 	public static void main(String[] args) {
 		
 		try {
-			sc = new Scanner(new File("A2010.in"));
+			sc = new Scanner(new File(args[0]));
 			out = new PrintWriter(
 					new BufferedWriter(
 					new FileWriter("A2010Mio.out")));
@@ -56,8 +58,7 @@ public class LawnMower {
 	private static void proccess() {
 		
 		boolean end = false;
-		int passesInX, passesInY;
-		float widthLM;
+		double passesInX, passesInY, widthLM;
 		
 		boolean coveredInX = false;
 		boolean coveredInY = false;
@@ -65,9 +66,9 @@ public class LawnMower {
 		while(!end) {
 			
 			//obtaining the first line
-			passesInX = Integer.parseInt(sc.next());
-			passesInY = Integer.parseInt(sc.next());
-			widthLM = Float.parseFloat(sc.next());
+			passesInX = Double.parseDouble(sc.next());
+			passesInY = Double.parseDouble(sc.next());
+			widthLM = Double.parseDouble(sc.next());
 			
 			/*
 			 * if we finished proccessing the last line. 
@@ -79,7 +80,7 @@ public class LawnMower {
 				
 			} else {
 				
-				coveredInX = proccessField(passesInX, widthLM);
+				coveredInX = proccessField(passesInX, widthLM, 75d);
 				
 				/*
 				 * if we don't cover along the lenght it does not meet 
@@ -87,8 +88,11 @@ public class LawnMower {
 				 */
 				if(coveredInX) {
 					
-					coveredInY = proccessField(passesInY, widthLM);
+					coveredInY = proccessField(passesInY, widthLM, 100d);
 				
+				} else {
+					sc.nextLine();
+					sc.nextLine();
 				}
 				
 				if(coveredInX && coveredInY) {
@@ -110,14 +114,14 @@ public class LawnMower {
 	
 	/**
 	 * This method calculates if Guido covers all the field.
-	 * @param pWidthLM the width of the lawn-mower
-	 * @param pPasses the number of passes 
+	 * @param widthLM the width of the lawn-mower
+	 * @param passesInX the number of passes 
 	 * @return true if it's properly covered. False otherwise
 	 */
-	private static boolean proccessField(int pPasses, float pWidthLM) {
-		
-		LinkedList<float[]> data = new LinkedList<float[]>();
-		int x = 0;
+	private static boolean proccessField(double passesInX, double widthLM, double pMax) {
+		PriorityQueue<Pair> data = new PriorityQueue<Pair>((int) passesInX);
+		int numPasses = 0;
+		double x, y;
 		
 		/*
 		 * the start and the end of the cut of the lawn mower in
@@ -125,124 +129,61 @@ public class LawnMower {
 		 */
 		
 		float startingPosition = 0.0f;
+		Pair aPair;
 		
-		while(x < pPasses) {
-			
-			float[] pass = new float[2];
+		while(numPasses < passesInX) {
 			
 			startingPosition = Float.parseFloat(sc.next());
-			pass[0] = startingPosition - pWidthLM/2;
-			pass[1] = startingPosition + pWidthLM/2;
+			x = startingPosition - widthLM/2;
+			y = startingPosition + widthLM/2;
 			
+			aPair = new Pair(x, y);
 			
-			if(data.isEmpty()) {
-				
-				data.add(pass);
-
-			} else {
-				
-				insert(pass, data);
-			}
+			data.add(aPair);
+			//insert(aPair, data);
 			
-			x++;
+			numPasses++;
 			
 		}
 		
-		return data.size()==1;
+		return covered(data, pMax);
 	}
 	
 
 	
-	/**
-	 * Method that inserts in order and merges if necessary.
-	 * @param pPass
-	 * @param pData
-	 */
-	private static void insert(float[] pPass, LinkedList<float[]> pData) {
-		
-		
-		float[] storedPass;
-		int index = 0;
+	private static boolean covered(PriorityQueue<Pair> data, double pMax) {
+		double max = 0d;
+		double min = 100001d;
 		boolean exit = false;
-		boolean keepProccessing = false;
+		Pair aPair, latestPair = null;
 		
-		while(pData.size() > index && !exit) {
-			
-			storedPass = new float[2];
-			storedPass = pData.removeFirst();
-			
-			//Possible cases
-			//storedPass = [10,20], pPass = [0,5]  -> result = [0,5], [10,20]
-			//storedPass = [10,20], pPass = [0,11]  -> result = [0,20]
-			//storedPass = [10,20], pPass = [0,30]  -> result = [0,30]
-			//storedPass = [10,20], pPass = [11,19]  -> result = [10,20]
-			//storedPass = [10,20], pPass = [13,30]  -> result = [10,30]
-			//storedPass = [10,20], pPass = [25,30]  -> result = process with the next storedPass
-			
-			//cases put in the order shown above.
-			
-			if( storedPass[0] > pPass[0] && 
-					storedPass[0] > pPass[1] &&
-					storedPass[1] > pPass[0] &&
-					storedPass[1] > pPass[1] && !keepProccessing) {
-			
-				pData.add(index, pPass);
-				pData.add(index + 1, storedPass);
-				exit = true;
-				
-			} else if(storedPass[0] > pPass[0] && 
-					storedPass[0] <= pPass[1] &&
-					storedPass[1] > pPass[0] &&
-					storedPass[1] >= pPass[1]) {
-				
-				pPass = new float[] {pPass[0], storedPass[1]};
-				pData.add(index, pPass);
-				exit = true;
-				
-			} else if(storedPass[0] <= pPass[0] && 
-					storedPass[0] < pPass[1] &&
-					storedPass[1] > pPass[0] &&
-					storedPass[1] >= pPass[1]) {
-				
-				//TODO Do nothing
-				exit = true;
-				
-			} else if(storedPass[0] <= pPass[0] && 
-					storedPass[0] < pPass[1] &&
-					storedPass[1] >= pPass[0] &&
-					storedPass[1] < pPass[1]) {
-			
-				keepProccessing = true;
-				pPass = new float[] {storedPass[0], pPass[1]};
-				pData.add(index, pPass);
-				
-				//continuar procesando por haber alargado el pPass
-				
-			} else if(storedPass[0] <= pPass[0] && 
-					storedPass[0] < pPass[1] &&
-					storedPass[1] > pPass[0] &&
-					storedPass[1] <= pPass[1]) {
-			
-				keepProccessing = true;
-				pData.add(index, pPass);
-				
-			} else if(storedPass[0] < pPass[0] && 
-					storedPass[0] < pPass[1] &&
-					storedPass[1] < pPass[0] &&
-					storedPass[1] < pPass[1]) {
-				
-				keepProccessing = true;
-				pData.add(index, storedPass);
-				pData.add(index + 1, pPass);
-				
-					
-				
-				
-			}
-				
-			index++;
+		latestPair = data.poll();
+		
+		if(latestPair.getX() < min && latestPair.getY() >= max) {
+			min = latestPair.getX();
+			max = latestPair.getY();
 		}
 		
+		if(min > 0) {
+			exit = true;
+		}
+		
+		while(!data.isEmpty() & !exit) {
+			
+			aPair = data.poll();
+			
+			if(aPair.getX() <= latestPair.getY()) {
+				if(aPair.getY() > max) {
+					max = aPair.getY();
+				}
+			} else {
+				exit = true;
+			}
+			
+			latestPair = aPair;
+		}
+		
+		return min <= 0 && max >= pMax;
 	}
-	
+		
 }
