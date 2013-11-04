@@ -2,7 +2,6 @@ package org.swerc2008;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Scanner;
@@ -10,8 +9,8 @@ import java.util.Scanner;
 public class A_BringYourOwnHorse {
 
 	//the graph
-	private static ArrayList<LinkedList<Integer[]>> grafo;
-	private static ArrayList<Integer> listaNombres;
+	private static LinkedList<Integer> listaNombres;
+	private static LinkedList<LinkedList<Integer[]>> grafo;
 	private static int[][] data;
 	
 	private static Scanner sc;
@@ -51,9 +50,7 @@ public class A_BringYourOwnHorse {
 			
 			places = Integer.parseInt(sc.next());
 			roads = Integer.parseInt(sc.next());
-			
-			listaNombres = new ArrayList<Integer>(places);
-			grafo = new ArrayList<LinkedList<Integer[]>>();
+			grafo = new LinkedList<LinkedList<Integer[]>>();
 			data = new int[roads][3];
 			
 			for(indRoads = 0; indRoads < roads; indRoads++) {
@@ -175,6 +172,7 @@ public class A_BringYourOwnHorse {
 	}
 
 	
+	
 	/**
 	 * Method that backtracks the path from given node
 	 * @param precedents
@@ -190,10 +188,8 @@ public class A_BringYourOwnHorse {
 		
 		while(distance != 0) {
 			
-			indexOfObject = listaNombres.indexOf(precedent);
-			
-			distance = distances[indexOfObject];
-			precedent = precedents[indexOfObject];
+			distance = distances[precedent - 1];
+			precedent = precedents[precedent -1];
 			
 			if(distance > maxDistance) {
 				
@@ -205,6 +201,7 @@ public class A_BringYourOwnHorse {
 		
 		return maxDistance;
 	}
+
 
 	/**
 	 * Method that applies the kruskal algorithm to obtain a minimum spanning tree
@@ -339,11 +336,8 @@ public class A_BringYourOwnHorse {
 	
 	private static void createLink(int placeFrom, int placeTo, int distance) {
 		//we add the link to the graph, as it's undirected we make the path in double direction
-		grafo.get(listaNombres.indexOf(placeFrom)).add(new Integer[] 
-				{placeTo, distance});
-		
-		grafo.get(listaNombres.indexOf(placeTo)).add(new Integer[] 
-				{placeFrom, distance});
+		grafo.get(placeFrom).add(new Integer[] {placeTo, distance});
+		grafo.get(placeTo).add(new Integer[] {placeFrom, distance});
 		
 	}
 
