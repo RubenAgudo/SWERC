@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import java.util.Scanner;
 
 public class A_BringYourOwnHorse {
-
+	//test
 	//the graph
 	private static LinkedList<Integer> listaNombres;
 	private static LinkedList<LinkedList<Integer[]>> grafo;
@@ -349,7 +349,7 @@ public class A_BringYourOwnHorse {
 
 	private static void mergeSort(int inicio, int fin) {
 		
-		if ( inicio < fin ) { // hay más de un elemento en la tabla
+		if ( inicio < fin ) { // hay mï¿½s de un elemento en la tabla
 			
 			mergeSort(inicio, (inicio + fin) / 2);
 			mergeSort(((inicio + fin) / 2) + 1, fin);
