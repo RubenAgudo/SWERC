@@ -44,6 +44,7 @@ public class A_BoiledEggs {
 	
 	
 	private static int[] W;
+	private static int[][] val;
 	
 	public static void main(String[] args) {
 		Reader.init(System.in);
@@ -57,12 +58,14 @@ public class A_BoiledEggs {
 				int q = Reader.nextInt();
 				
 				W = new int[n];
+				val = new int[n+1][q+1];
 				for(int j = 0;j<n;j++)
 				{
 					W[j] = Reader.nextInt();
 				}
 				
 				int result = knapsack(q, p);
+				
 				System.out.println(result);
 			}
 
@@ -85,7 +88,7 @@ public class A_BoiledEggs {
 	private static int val(int id, int remW, int iterations) {
 		int result = 0;
 		
-		//2 3 4 4 5
+		
 		if(iterations > 0) {
 			
 			if(remW == 0) {
@@ -97,13 +100,29 @@ public class A_BoiledEggs {
 			}
 			
 			if(W[id] > remW) {
-				return  val(id + 1, remW, iterations);
+				
+				if(val[id+1][remW] == 0) {
+					val[id][remW] = val(id+1, remW, iterations);
+				} else {
+					val[id][remW] = val[id+1][remW];
+				}
 			}
 			
 			if(W[id] <= remW) {
-				int x = val(id+1, remW, iterations);
-				int y = W[id] + val(id+1, remW - W[id], iterations -1);
-				return Math.max(x, y);
+//				int x = val(id+1, remW, iterations);
+//				int y = W[id] + val(id+1, remW - W[id], iterations -1);
+				
+				if(val[id+1][remW] == 0) {
+					val[id][remW] = val(id+1, remW, iterations);
+				}
+				
+				
+				if(val[id+1][remW - W[id]] == 0) {
+					val[id][remW - W[id]] = W[id] + val(id+1, remW - W[id], iterations -1);
+				} else {
+					iterations--;
+				}
+				return Math.max(val[id][remW], val[id][remW - W[id]]);
 			}
 		}
 		
