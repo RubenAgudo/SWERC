@@ -65,18 +65,7 @@ public class A_BoiledEggs {
 				int result = knapsack(q, p);
 				System.out.println(result);
 			}
-//			/*int cases = 1;//Reader.nextInt();
-//			int n = 5;
-//			int p = 3;
-//			int q = 12;*/
-//			
-//			int result = 0;
-//			
-//			int x = 0;
-//			for(x = 0; x < cases; x++) {
-//				result = knapsack(q, p);
-//				System.out.println(result);
-//			}
+
 			
 		} catch (NullPointerException e) {
 			e.printStackTrace();
