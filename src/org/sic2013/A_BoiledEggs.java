@@ -96,13 +96,14 @@ public class A_BoiledEggs {
 	private static int val(int id, int remW, int iterations) {
 		int result = 0;
 		
+		//2 3 4 4 5
 		if(iterations > 0) {
 			
 			if(remW == 0) {
 				return 0;
 			}
 			
-			if(id == (W.length - 1)) {
+			if(id == W.length) {
 				return 0;
 			}
 			
@@ -111,8 +112,9 @@ public class A_BoiledEggs {
 			}
 			
 			if(W[id] <= remW) {
-				return  Math.max(val(id+1, remW, iterations), 
-						W[id] + val(id+1, remW - W[id], iterations -1));
+				int x = val(id+1, remW, iterations);
+				int y = W[id] + val(id+1, remW - W[id], iterations -1);
+				return Math.max(x, y);
 			}
 		}
 		
