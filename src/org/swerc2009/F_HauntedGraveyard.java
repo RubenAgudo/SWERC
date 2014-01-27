@@ -3,6 +3,7 @@ package org.swerc2009;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Scanner;
@@ -13,13 +14,11 @@ public class F_HauntedGraveyard {
 		
 		private int posX;
 		private int posY;
-		private int serial;
 		
 		public Vertex(int pPosX, int pPosY, int pSerial) {
 			
 			posX = pPosX;
 			posY = pPosY;
-			serial = pSerial;
 		}
 		
 		public Vertex(int pPosX, int pPosY) {
@@ -78,7 +77,7 @@ public class F_HauntedGraveyard {
 	private static LinkedList<Vertex> collectionVertices;
 	private static LinkedList<Road> graph;
 	private static Scanner sc;
-	private static final int INFINITY = 10001;
+	private static final int INFINITY = 1000000000;
 	
 	public static void main(String[] args) {
 		
@@ -146,6 +145,7 @@ public class F_HauntedGraveyard {
 	private static int bellmanFord(Vertex pOrigin, int pRoads, int width, int height) {
 		HashMap<Vertex, Vertex> predecessors = new HashMap<Vertex, Vertex>();
 		HashMap<Vertex, Integer> distances = new HashMap<Vertex, Integer>();
+		HashSet<Vertex> visited = new HashSet<Vertex>();
 		
 		int i, j, result = 0;
 		
@@ -159,7 +159,7 @@ public class F_HauntedGraveyard {
 			predecessors.put(collectionVertices.get(i), null);
 		}
 		
-		for(i = 0; i < collectionVertices.size(); i++) {
+		for(i = 0; i < collectionVertices.size()-1; i++) {
 			
 			for(j = 0; j < pRoads; j++) {
 				
@@ -172,9 +172,9 @@ public class F_HauntedGraveyard {
 				if(u + w < v) {
 					//distances[NodeTo] = distances[NodeFrom] + profit
 					distances.put(aRoad.to, u + w);
-					if(predecessors.get(aRoad.to) == null) {
+//					if(predecessors.get(aRoad.to) == null) {
 						predecessors.put(aRoad.to, aRoad.from);
-					}
+//					}
 		            
 					
 				}
@@ -184,7 +184,7 @@ public class F_HauntedGraveyard {
 		}
 		
 		//check for negative cycles
-		for(i = 0; i < graph.size(); i++) {
+		for(i = 0; i < pRoads; i++) {
 			
 			Road aRoad = graph.get(i);
 			int u = distances.get(aRoad.from); //distance of NodeFrom
@@ -195,6 +195,7 @@ public class F_HauntedGraveyard {
 				if(reachableFromSource(aRoad.from, predecessors)) {
 					result = -1;
 				}
+				
 				
 			}
 		}
@@ -211,6 +212,8 @@ public class F_HauntedGraveyard {
 	private static boolean reachableFromSource(Vertex from,
 			HashMap<Vertex, Vertex> predecessors) {
 		
+		HashSet<Vertex> visited = new HashSet<Vertex>();
+		
 		Vertex source = new Vertex(0, 0);
 		Vertex aVertex = new Vertex(from.posX, from.posY);
 		Vertex me;
@@ -224,6 +227,13 @@ public class F_HauntedGraveyard {
 			if(aVertex.equals(source) || me.equals(aVertex)) {
 				exit = true;
 			}
+			
+			if(visited.contains(aVertex)) {
+				exit = true;
+			} else {
+				visited.add(aVertex);
+			}
+			
 		}
 		
 		return aVertex.equals(source);

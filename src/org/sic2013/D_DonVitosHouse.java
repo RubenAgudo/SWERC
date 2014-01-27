@@ -1,6 +1,9 @@
 package org.sic2013;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -43,12 +46,12 @@ public class D_DonVitosHouse {
 	    }
 	}
 	
-	
 	private static PriorityQueue<Integer> neighbours;
 	private static int numNeighbours;
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws FileNotFoundException {
 		
+//		Reader.init(new FileInputStream("donvito.in"));
 		Reader.init(System.in);
 		
 		try {
@@ -60,6 +63,8 @@ public class D_DonVitosHouse {
 				System.out.println(process());
 				
 			}
+			long end = System.currentTimeMillis();
+			
 			
 		} catch (NullPointerException e) {
 			e.printStackTrace();
@@ -76,12 +81,12 @@ public class D_DonVitosHouse {
 		
 		while(sc.hasNext()) {
 			int neighbour = sc.nextInt();
+			neighbours.add(neighbour);
+			numNeighbours++;
 			
 			//adding only the distinct streets numbers
-			if(!neighbours.contains(neighbour)) {
-				neighbours.add(neighbour);
-				numNeighbours++;
-			}
+//			if(!neighbours.contains(neighbour)) {
+//			}
 			
 		}
 		
@@ -119,19 +124,19 @@ public class D_DonVitosHouse {
 		return sum;
 	}
 	
-//	private static long calculateDistance2(Integer[] dummy) {
-//		
-//		long sum = 0;
-//		long min = 1000000000;
-//		for(int x = 0; x < dummy.length; x++) {
-//			sum = 0;
-//			for(int i = 0; i < dummy.length; i++) {
-//				sum += distance(dummy[i], dummy[x]);				
-//			}
-//			if(min>sum) {
-//				min = sum;
-//			}
-//		}
-//		return min;
-//	}
+	private static long calculateDistance2(Integer[] dummy) {
+		
+		long sum = 0;
+		long min = 1000000000;
+		for(int x = 0; x < dummy.length; x++) {
+			sum = 0;
+			for(int i = 0; i < dummy.length; i++) {
+				sum += distance(dummy[i], dummy[x]);				
+			}
+			if(min>sum) {
+				min = sum;
+			}
+		}
+		return min;
+	}
 }
