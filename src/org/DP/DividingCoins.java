@@ -44,10 +44,14 @@ public class DividingCoins {
 		
 	}
 	
-	private int change(int[] bag, int sum, int ind) {
+	private double change(int[] bag, int sum, int ind) {
 		
 		if(ind >= bag.length) {
-			return (sumCoins / 2) - sum;
+			if(sumCoins % 2 != 0) {
+				return sum;
+			} else {				
+				return Math.abs((sumCoins / 2) - sum);
+			}
 		}
 		
 		if(sumCoins / 2.0 == sum) {
