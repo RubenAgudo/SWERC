@@ -9,3 +9,6 @@
 *.ear
 
 *.txt
+/bin
+
+*.swp
